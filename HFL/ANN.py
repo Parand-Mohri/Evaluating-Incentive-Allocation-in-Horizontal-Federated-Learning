@@ -10,6 +10,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 from sklearn.metrics import precision_score, recall_score
 
+
 class ann():
     def __init__(self):
         self.X_train = None
@@ -20,7 +21,6 @@ class ann():
 
     def individual_test(self, X, Y):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-        # self.clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=42, max_iter=1000)
 
     def central_test(self, X_train, X_test, Y_train, Y_test):
         self.X_train = X_train
@@ -28,9 +28,11 @@ class ann():
         self.Y_train = Y_train
         self.Y_test = Y_test
 
-
     def get_model(self):
         return self.clf
+
+    def get_test_data(self):
+        return self.X_test, self.Y_test
 
     def train(self):
         self.clf.fit(self.X_train, self.Y_train)
@@ -43,7 +45,6 @@ class ann():
         fscore = f1_score(self.Y_test, y_predict)
         precision = precision_score(self.Y_test, y_predict)
         recall = recall_score(self.Y_test, y_predict)
-        # fscore = 0
         print()
         print('accuracy score', acc)
         print("kappa", kappa)
@@ -51,18 +52,4 @@ class ann():
         print("recall", recall)
         print('precision', precision)
         print()
-        return [acc,kappa, fscore]
-
-    # def aNN(self):
-    # # scaler = preprocessing.StandardScaler().fit(X_train)
-    # # X_train = scaler.transform(X_train)
-    # X_test = scaler.transform(X_test)
-
-
-
-
-# def aNN(X, Y):
-#     X_train, X_test, y_train, y_test = train_test_split(X, Y, random_state=42)
-#     pipe = make_pipeline(StandardScaler(), MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes = (5, 2), random_state =42))
-#     pipe.fit(X_train, y_train)  # apply scaling on training data
-#     return [pipe.score(X_test, y_test),pipe.score(X_test, y_test)]   # apply scaling on testing da
+        return [acc, kappa, fscore]

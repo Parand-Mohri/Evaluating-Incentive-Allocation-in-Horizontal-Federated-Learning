@@ -1,3 +1,5 @@
+from statistics import mean
+
 import numpy as np
 from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
 
@@ -31,7 +33,6 @@ def combine_models(models, X_test, Y_test):
     print('F-score', fscore)
     print()
     return [kappa, acc, fscore]
-
 
 
 def central_model(models, X_test, Y_test, prc):
@@ -85,3 +86,11 @@ def central_model(models, X_test, Y_test, prc):
     return [ acc, kappa]
     # return [0,0]
 
+
+def individual_evaluation(models, federated_model):
+    acc = []
+    for model in models:
+        x_test, y_test = model.get_test_data()
+        y_predict = federated_model.predict(x_test)
+        acc.append(accuracy_score(y_test, y_predict))
+    return mean(acc)
