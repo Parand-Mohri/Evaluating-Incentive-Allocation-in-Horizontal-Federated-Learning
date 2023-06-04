@@ -6,12 +6,12 @@ from sklearn.metrics import accuracy_score, cohen_kappa_score, f1_score
 from sklearn.neural_network import MLPClassifier
 
 
-def combine_models(models, X_test, Y_test):
+def combine_models(models):
     # Get the number of models
     num_models = len(models)
 
     # Create a new model by averaging the predictions of the existing models
-    new_model = MLPClassifier()  # Replace with your desired MLPClassifier configuration
+    new_model = MLPClassifier(max_iter=2000)  # Replace with your desired MLPClassifier configuration
 
     # Iterate over the models
     for model in models:
@@ -22,17 +22,18 @@ def combine_models(models, X_test, Y_test):
     X_dummy = np.zeros((1, 7))
     y_dummy = np.zeros(1)
     new_model.fit(X_dummy, y_dummy)
-    y_predict = new_model.predict(X_test)
-    acc = accuracy_score(Y_test, y_predict)
-    kappa = cohen_kappa_score(Y_test, y_predict)
-    fscore = f1_score(Y_test, y_predict)
-    # fscore = 0
-    print()
-    print('accuracy score', acc)
-    print("kappa", kappa)
-    print('F-score', fscore)
-    print()
-    return [kappa, acc, fscore]
+    return new_model
+    # y_predict = new_model.predict(X_test)
+    # acc = accuracy_score(Y_test, y_predict)
+    # kappa = cohen_kappa_score(Y_test, y_predict)
+    # fscore = f1_score(Y_test, y_predict)
+    # # fscore = 0
+    # print()
+    # print('accuracy score', acc)
+    # print("kappa", kappa)
+    # print('F-score', fscore)
+    # print()
+    # return [kappa, acc, fscore]
 
 
 def central_model(models, X_test, Y_test, prc):
@@ -87,10 +88,14 @@ def central_model(models, X_test, Y_test, prc):
     # return [0,0]
 
 
-def individual_evaluation(models, federated_model):
+def individual_evaluation(models, central_model):
     acc = []
     for model in models:
         x_test, y_test = model.get_test_data()
-        y_predict = federated_model.predict(x_test)
-        acc.append(accuracy_score(y_test, y_predict))
-    return mean(acc)
+        y_predict = central_model.predict(x_test)
+        kappa = cohen_kappa_score(y_test, y_predict)
+        fscore = f1_score(y_test, y_predict)
+        acc.append([kappa,fscore])
+    acc_mean = np.mean(acc, axis=0).tolist()
+    print(acc)
+    return acc_mean

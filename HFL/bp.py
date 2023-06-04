@@ -34,7 +34,7 @@ def bp(estate, claims):
         number_of_people -= 1
 
     payoff.append(p2)
-    print(payoff)
+    print("banckruptcy", payoff)
 
 def test_1(number_of_people, p1, p2):
 #     # enough in system for everyone to get p1

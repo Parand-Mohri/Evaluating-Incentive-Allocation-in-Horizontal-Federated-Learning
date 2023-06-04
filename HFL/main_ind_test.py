@@ -1,16 +1,15 @@
-import itertools
-import random
-from itertools import combinations
+from sklearn.utils import resample
+
 from bp import bp
 
 import pandas as pd
-import numpy as np
 
 from HFL.ANN import ann
 from procss import divide_data
 from DT_CV import DT_CV, DT
 from LR_CV import LR_CV
 from shapley import shap
+from itertools import combinations
 from RF_CV import RF_CV
 from SVM_CV import SVM_CV
 from sklearn.model_selection import train_test_split
@@ -19,24 +18,17 @@ from central_model import combine_models
 from sklearn.preprocessing import StandardScaler
 
 
-def standarize_data(X_train, X_test):
-    ss = StandardScaler().fit(X_train)
-    X_train = pd.DataFrame(ss.fit_transform(X_train), columns=X_train.columns)
-    X_test = pd.DataFrame(ss.fit_transform(X_test), columns=X_test.columns)
-    return X_train, X_test
-
-
-def central_test(data, column_name):
-    Y_c = data[column_name]
-    X_c = data.drop([column_name], axis=1)
-
-    X_train, X_test, Y_train, Y_test = train_test_split(X_c, Y_c, test_size=0.2, random_state=42)
-    X_train, X_test = standarize_data(X_train, X_test)
-
-    data = X_train.copy()
-    data[column_name] = Y_train.values
-
-    return [data, [X_test, Y_test]]
+# def central_test(data, column_name):
+#     Y_c = data[column_name]
+#     X_c = data.drop([column_name], axis=1)
+#
+#     X_train, X_test, Y_train, Y_test = train_test_split(X_c, Y_c, test_size=0.2, random_state=42)
+#     X_train, X_test = standarize_data(X_train, X_test)
+#
+#     data = X_train.copy()
+#     data[column_name] = Y_train.values
+#
+#     return [data, [X_test, Y_test]]
 
 
 def weight_acc(claims, prc):
@@ -46,10 +38,21 @@ def weight_acc(claims, prc):
     return result
 
 
+def shapley_prc(prc):
+    sprc = []
+    for i in range(2, len(prc) + 1):
+        g = list(combinations(prc, i))
+        for com in g:
+            sprc.append(round(sum(com), 2))
+    return sprc
+
+
 def train(cen_test, column_name: str, data):
-    if cen_test:
-        data, test_data = central_test(data, column_name)
-    prc = [0.1, 0.9]
+    # if cen_test:
+    #     data, test_data = central_test(data, column_name)
+    prc = [0.1, 0.2, 0.3, 0.4]
+    prc_shap = prc.copy()
+    prc_shap.extend(shapley_prc(prc))
     contributors = divide_data(data, prc)
     acc = []
     models = []
@@ -57,47 +60,98 @@ def train(cen_test, column_name: str, data):
         Y = cont[column_name]
         X = cont.drop([column_name], axis=1)
         model = ann()
-        if cen_test:
-            model.central_test(X_train=X, Y_train=Y, X_test=test_data[0], Y_test=test_data[1])
-        else:
-            model.individual_test(X, Y)
+        model.individual_test(X, Y)
         model.train()
         models.append(model.get_model())
+        # acc.append(model.get_acc()[0])
         acc.append(model.get_acc()[0])
 
-    if cen_test:
-        estate = (central_model(models, test_data[0], test_data[1], prc )[0])
-        # estate = combine_models(models, test_data[0], test_data[1])[1]
-    else:
-        # TODO: N accuracy for central model
-        # estate = individual_evaluation(models, )
-        estate = -1
+    shaply = acc.copy()
+    for i in range(2, len(contributors) + 1):
+        combin = list(combinations(contributors, i))
+        for comb in combin:
+            data = pd.concat(comb)
+            y = data[column_name]
+            x = data.drop([column_name], axis=1)
+            model = ann()
+            model.individual_test(x, y)
+            model.train()
+            shaply.append(model.get_acc()[0])
 
-    claims = sorted([round(num, 2) for num in acc])
+    # federated_model = combine_models(models)
+    # estate = individual_evaluation(models, federated_model)[0]
+    # cm = ann()
+    # cm.individual_test(data.drop([column_name], axis=1), data[column_name])
+    # cm.train()
+    # estate = cm.get_acc()
+    # estate = cm.get_acc()[0]
+    estate = shaply[-1]
+    # print(estate)
+    shaply = weight_acc(shaply, prc_shap)
+    # claims = sorted([round(num, 4) for num in acc])
+    # claims = sorted(acc)
+    claims = weight_acc(acc, prc)
+    sorted_list = sorted(enumerate(claims), key=lambda x: x[1])
+    claims = [value for index, value in sorted_list]
+    sorted_indices = [index for index, value in sorted_list]
+    claims = [round(num, 4) for num in claims]
     claims = [0 if i < 0 else i for i in claims]
-    claims = weight_acc(claims, prc)
+
+    print()
+    print('shapley claims', shaply)
+    print("shapley", shap(shaply, len(contributors)))
     print()
     print('estate', estate)
     print('claims', claims)
     print()
+    print('the order of claims', sorted_indices)
     bp(estate, claims)
 
 
-# if __name__ == '__main__':
-#     chess_data = pd.read_csv("data/chess_useful_data.csv")
-#
-#     train(True, "winner", chess_data)
-
-# if __name__ == '__main__':
-#     random_gen_data = pd.read_csv("data/random_generated_binary_200000_noisy_data.csv")
-#
-#     train(cen_test=True, column_name="6", data=random_gen_data)
-
 if __name__ == '__main__':
+    # shapley_prc([0.1, 0.2, 0.3, 0.4], 4)
     diabetes_data = pd.read_csv("data/diabetes_prediction_dataset.csv")
     diabetes_data = diabetes_data[
         ['gender', 'age', 'hypertension', 'heart_disease', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes']]
-    train(True, "diabetes", diabetes_data)
+    # diabetes_data = diabetes_data[:1000]
+    #
+    train(False, "diabetes", diabetes_data)
+
+
+# if __name__ == '__main__':
+#     random_gen_data = pd.read_csv("numerical_bank_data.csv")
+#     # test_data = pd.read_csv("data/testdata.csv")
+#     # CreditScore,Geography,Gender,Age,Tenure,Balance,NumOfProducts,HasCrCard,IsActiveMember,EstimatedSalary,Exited,Complain,Satisfaction Score,Card Type,Point Earned
+#     train(False, column_name="Exited", data=random_gen_data)
+
+
+# if __name__ == '__main__':
+#     # diabetes_data = pd.read_csv("data/diabetes_prediction_dataset.csv")
+#     # diabetes_data = diabetes_data[
+#     #     ['gender', 'age', 'hypertension', 'heart_disease', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes']]
+#     diabetes_data = pd.read_csv('data/random_generated_binary_200000_new_data.csv')
+#     # Separate the majority and minority class
+#     majority_class = diabetes_data[diabetes_data['6'] == 0]
+#     minority_class = diabetes_data[diabetes_data["6"] == 1]
+#
+#     # Undersample the majority class
+#     majority_downsampled = resample(majority_class,
+#                                     replace=False,  # Set to False for undersampling
+#                                     n_samples=len(minority_class),
+#                                     # Match the number of instances in the minority class
+#                                     random_state=42)  # Set a random state for reproducibility
+#
+#     # Combine the downsampled majority class with the original minority class
+#     balanced_df = pd.concat([majority_downsampled, minority_class])
+#
+#     # Shuffle the dataset
+#     balanced_df = balanced_df.sample(frac=1, random_state=42).reset_index(drop=True)
+#
+#     # The balanced dataset now has an equal number of 0s and 1s
+#     # print("Balanced Dataset:")
+#     # print(balanced_df['diabetes'].value_counts())
+#
+#     train(False, "6", balanced_df)
 
 def chess_data_shap():
     chess_data = pd.read_csv("data/chess_games.csv")
@@ -155,5 +209,3 @@ def random_gen_data_shap():
     d = [round(num, 2) for num in d]
     print(d)
     print(shap(d, len(contributors)))
-
-
