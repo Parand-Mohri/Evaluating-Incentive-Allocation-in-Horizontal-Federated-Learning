@@ -40,7 +40,7 @@ def shap(characteristic_function, n):
     return shapley_values
 
 
-# if __name__ == '__main__':
-#     characteristic_function = ['1', ' 3', ' 4', ' 4', '5', ' 8', '10']
-#     n = 3
-#     shap(characteristic_function, n)
+if __name__ == '__main__':
+    characteristic_function = ['1', ' 3', ' 4', ' 4', '5', ' 8', '10']
+    n = 3
+    print(shap(characteristic_function, n))

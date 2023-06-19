@@ -25,11 +25,11 @@ class ann():
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
         self.X_train, self.X_test = self.standarize_data(self.X_train, self.X_test)
 
-    def central_test(self, X_train, X_test, Y_train, Y_test):
-        self.X_train = X_train
-        self.X_test = X_test
-        self.Y_train = Y_train
-        self.Y_test = Y_test
+    # def central_test(self, X_train, X_test, Y_train, Y_test):
+    #     self.X_train = X_train
+    #     self.X_test = X_test
+    #     self.Y_train = Y_train
+    #     self.Y_test = Y_test
 
     def get_model(self):
         return self.clf
@@ -43,7 +43,7 @@ class ann():
 
     def get_acc(self):
         y_predict = self.clf.predict(self.X_test)
-        acc = accuracy_score(self.Y_test, y_predict)
+        acc = accuracy_score(y_predict,self.Y_test)
         kappa = cohen_kappa_score(y_predict, self.Y_test)
         fscore = f1_score(self.Y_test, y_predict)
         print()

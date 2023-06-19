@@ -1,0 +1,23 @@
+,0
+0,"                           0
+Unnamed: 0          0.000105
+CreditScore        -0.002014
+Gender             -0.038586
+Age                 0.090189
+Tenure             -0.007969
+Balance             0.030062
+NumOfProducts      -0.014139
+HasCrCard          -0.001232
+IsActiveMember     -0.049510
+EstimatedSalary     0.004556
+Complain            0.349948
+Satisfaction Score -0.002285
+Point Earned       -0.002484
+Card Type_DIAMOND   0.009986
+Card Type_GOLD     -0.004416
+Card Type_PLATINUM -0.005208
+Card Type_SILVER   -0.000660
+Geography_France   -0.025362
+Geography_Germany   0.042929
+Geography_Spain    -0.013698"
+1,[-0.2616082]

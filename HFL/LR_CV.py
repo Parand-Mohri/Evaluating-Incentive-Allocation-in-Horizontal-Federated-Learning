@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score,cohen_kappa_score
 
 
 def LR_CV(X, Y) -> float:
@@ -17,10 +17,11 @@ def LR_CV(X, Y) -> float:
     reg = final_model
     reg.fit(X_train, Y_train)
     y_predict = reg.predict(X_test)
-    acc=accuracy_score(Y_test, y_predict)
+    # acc=accuracy_score(Y_test, y_predict)
+    kappa = cohen_kappa_score(Y_test,y_predict)
     fscore = f1_score(Y_test, y_predict)
     print()
-    print('accuracy score',acc )
+    # print('accuracy score',acc )
     print('F-score',fscore )
     print()
-    return [acc, fscore]
+    return [kappa, fscore]
