@@ -1,8 +1,6 @@
 from itertools import combinations
 import math
 import bisect
-import sys
-
 
 def power_set(List):
     PS = [list(j) for i in range(len(List)) for j in combinations(List, i + 1)]
@@ -38,9 +36,3 @@ def shap(characteristic_function, n):
         shapley_values.append(shapley)
 
     return shapley_values
-
-
-if __name__ == '__main__':
-    characteristic_function = ['1', ' 3', ' 4', ' 4', '5', ' 8', '10']
-    n = 3
-    print(shap(characteristic_function, n))
