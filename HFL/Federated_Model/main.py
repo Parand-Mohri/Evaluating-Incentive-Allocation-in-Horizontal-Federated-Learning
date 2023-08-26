@@ -71,14 +71,15 @@ prc_shap.extend(shapley_prc(prc))
 # prc_shap.extend(shapley_prc([0.1,0.2,0.3,0.4]))
 
 # divide data between contributors
-contributors = divide_data(data, prc)
+# contributors = divide_data(data, prc)
 
 # for specific data experiments, divide with respect to gender
-# contributors = divide_data_with_gender(bank_data, prc)
+contributors = divide_data_with_gender(data, prc, bank_data)
 
 # for sharing data contributor 4 has 20% of contributor 3 data points
 # contributor4 = contributor[2].sample(frac=0.2, random_state=42)
 # contributors = [contributor4, contributor[0] , contributor[1], contributor[2]]
+# print([len(c) for c in contributors])
 
 # for redistributed data experiments new contributor has 20% of contributor 3 data
 # c5divide = divide_data(contributors[2], [0.2,0.8])
@@ -151,7 +152,7 @@ def evaluate_federated_model():
     # bank data --> swapped data
     # w=[-0.001076, -0.001584, -0.006820, 0.033202, 0.000364, 0.014761, -0.014707, 0.000486, -0.025267, 0.003115, 0.115846, 0.001520, -0.001129, -0.002242, 0.004046, -0.000918, -0.000987, -0.010881, 0.014491, -0.001491]
     # b= -0.08574907
-    # random data -->opposite data
+    # random data -->swapped data
     # w =[0.013637, 0.057199, -0.008532, 0.058226, 0.013289, 0.011384, 0.009107]
     # b = -0.00332163
     # random data -->random label
@@ -162,12 +163,12 @@ def evaluate_federated_model():
 # 0.003953, -0.001999, -0.024227, 0.062614, 0.000076, 0.021860, -0.014309, -0.001697, -0.039332, -0.000613, 0.232164, -0.001523, -0.002249, 0.000750, 0.002072, -0.002303, -0.000598, -0.018625, 0.031287, -0.009573]
 #     b = -0.17136989
 #     random data ->redistributed data
-    w = [0.006275, 0.176035, -0.036585, 0.171514, -0.002392, 0.043288, 0.015565]
-    b =-0.01518958
+#     w = [0.006275, 0.176035, -0.036585, 0.171514, -0.002392, 0.043288, 0.015565]
+#     b =-0.01518958
 #     bank data ->redistributed
 #     w=[-0.003296, -0.000957, -0.038852, 0.092085, -0.005165, 0.024578, -0.023887, -0.000953, -0.052366, 0.000725, 0.353327, -0.008910, 0.006241, 0.007212, 0.001104, -0.004283, -0.004134, -0.019898, 0.042890, -0.020740]
 #     b=-0.256077
-#     diabetes -> opposite data
+#     diabetes -> swapped data
 #     w =[0.002143, 0.018455, 0.015611, 0.013058, 0.016222, 0.032899, 0.033137]
 #     b =-0.12247324
 #     diabtes data->random label
@@ -189,8 +190,8 @@ def evaluate_federated_model():
     # w= [ 0.008229, 0.056734, 0.042184, 0.039318, 0.049529, 0.097916, 0.096388]
     # b = -0.36705334
     # diaetes data -> gender
-    # w =[0.003517, 0.059006, 0.042494, 0.038871, 0.051617, 0.099752, 0.100160]
-    # b = -0.36460644
+    w =[0.003517, 0.059006, 0.042494, 0.038871, 0.051617, 0.099752, 0.100160]
+    b = -0.36460644
     # bank data -> gender
     # w=[-0.001495, -0.012102, -0.013120, 0.091925, -0.004139, 0.028758, -0.013976, -0.004973, -0.049003, 0.002359, 0.349181, -0.003911, -0.004982, 0.005395, -0.006289, 0.003514, -0.002523, -0.030786, 0.047319, -0.011662]
     # b=-0.26010408
